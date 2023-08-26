@@ -1,18 +1,6 @@
 {
-    "rewrites": [
-      {
-        "source": "/api/(.*)",
-        "destination": "/api"
-      }
-    ],
-    "redirects": [
-      {
-        "source": "/src(.*)",
-        "destination": "/public/401.html"
-      }
-    ],
     "functions": {
-        "api/index.js": {
+        "api/index.ts": {
         "memory": 1024,
         "maxDuration": 10
         }
