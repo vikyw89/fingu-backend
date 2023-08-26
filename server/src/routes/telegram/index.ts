@@ -5,7 +5,13 @@ import { telegramBot } from "../../utils/telegram";
 
 telegramBot.on(message('text'), telegramMessageHandler)
 
-telegramBot.launch()
+telegramBot.launch({
+    webhook: {
+        domain: 'https://myaddress.com',
+        port: 3000,
+        
+    }
+})
 
 // Enable graceful stop
 process.once('SIGINT', () => telegramBot.stop('SIGINT'));

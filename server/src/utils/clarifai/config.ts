@@ -1,7 +1,7 @@
 export const USER_ID = 'meta';
 export const APP_ID = 'Llama-2';
 
-export const MODEL_ID = 'llama2-7b-chat';
+export const MODEL_ID = process.env.MODEL_ID ?? 'llama2-7b-alternative-4k';
 export const PAT = process.env.PAT;
 export const SYS_PROMPT = `
 Your name is Fingu.
