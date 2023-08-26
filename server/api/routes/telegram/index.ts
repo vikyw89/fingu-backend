@@ -5,7 +5,7 @@ import { telegramBot } from "../../utils/telegram";
 telegramBot.on("message", telegramMessageHandler)
 
 // telegramBot.start()
-export default webhookCallback(telegramBot, "http");
+
 export const initTelegramRoutes = () => {
 
 }
