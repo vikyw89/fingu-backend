@@ -1,5 +1,5 @@
-import { askClarify, generatePrompt, pruneHistory } from "../../utils/clarify";
-import { GeneratePromptParams, Messages, messageSchema, messagesSchema } from "../../utils/clarify/types";
+import { askClarify, generatePrompt, pruneHistory } from "../../utils/clarifai";
+import { GeneratePromptParams, Messages, messageSchema, messagesSchema } from "../../utils/clarifai/types";
 import { prisma } from "../../utils/prisma";
 
 export const telegramMessageHandler = async (ctx: any, next:any) => {
@@ -11,8 +11,6 @@ export const telegramMessageHandler = async (ctx: any, next:any) => {
         const telegramId = ctx.message.from.id.toString()
 
         const newText = ctx.message.text as string
-        console.log("🚀 ~ file: index.ts:14 ~ telegramMessageHandler ~ newText:", newText)
-
         const newMessage = {
             isUser: true,
             text: newText
@@ -31,7 +29,7 @@ export const telegramMessageHandler = async (ctx: any, next:any) => {
             },
             select: {
                 chatHistory: {
-                    take: 20,
+                    take: 100,
                     orderBy: {
                         createdAt: 'desc',
                     },
@@ -64,7 +62,7 @@ export const telegramMessageHandler = async (ctx: any, next:any) => {
                     messageHistory.unshift(message.data)
                 }
             }
-
+            
             messageHistory = pruneHistory({messages: messageHistory})
         }
         
@@ -74,16 +72,13 @@ export const telegramMessageHandler = async (ctx: any, next:any) => {
             newPrompt = generatePrompt({ messages: messageHistory })
         }
         
-        // prune prompt
 
         const response = await askClarify({ name: name, messages: newPrompt })
-
         const responseData = response.outputs[0].data.text.raw
-
         // send data to user
         await ctx.reply(responseData)
-        // await ctx.telegram.sendMessage(ctx.message.chat.id, responseData);
 
+        // await ctx.telegram.sendMessage(ctx.message.chat.id, responseData);
         const newResponse = {
             text: responseData,
             isUser: false
@@ -104,7 +99,7 @@ export const telegramMessageHandler = async (ctx: any, next:any) => {
         })
 
     } catch (err) {
-        console.log("🚀 ~ file: index.ts:107 ~ telegramMessageHandler ~ err:", err)
+        console.log(err)
     }
 
 }

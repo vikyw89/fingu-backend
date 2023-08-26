@@ -1,4 +1,4 @@
-import { USER_ID, APP_ID, MODEL_ID, MODEL_VERSION_ID, SYS_PROMPT, PAT, MAX_WORDS } from "./config";
+import { USER_ID, APP_ID, MODEL_ID, SYS_PROMPT, PAT, MAX_CHARS } from "./config";
 import { AskClarifyParams, GeneratePromptParams, PruneHistoryParams } from "./types";
 
 /**
@@ -12,7 +12,8 @@ import { AskClarifyParams, GeneratePromptParams, PruneHistoryParams } from "./ty
 export const askClarify = async ({ messages, name, sysPrompt = SYS_PROMPT }: AskClarifyParams) => {
 
     const endInput = `<s>
-    <<SYS>>${sysPrompt}<</SYS>>
+    <<SYS>>You are chatting to ${name}.
+    ${sysPrompt}<</SYS>>
     ${messages}`
 
     const raw = JSON.stringify({
@@ -30,23 +31,25 @@ export const askClarify = async ({ messages, name, sysPrompt = SYS_PROMPT }: Ask
             }
         ]
     });
-
+    
     const requestOptions = {
         method: 'POST',
         headers: {
-            'Accept': 'application/json',
+            "Content-Type": "application/json",
             'Authorization': 'Key ' + PAT
         },
         body: raw
     };
 
     try {
-        const res = await fetch("https://api.clarifai.com/v2/models/" + MODEL_ID + "/versions/" + MODEL_VERSION_ID + "/outputs", requestOptions)
-        const data = res.json()
+        const res = await fetch(`https://api.clarifai.com/v2/models/${MODEL_ID}/outputs`, requestOptions)
+        const data = await res.json()
         return data
     }
     catch (err) {
+
         console.log(err)
+
     }
 }
 
@@ -70,16 +73,15 @@ export const generatePrompt = ({ messages }: GeneratePromptParams) => {
  * @param {Array<string>} params.messages - The array of messages to be pruned.
  * @param {number} [params.maxWords=MAX_WORDS] - The maximum number of words allowed in the history.
  */
-export const pruneHistory = ({ messages, maxWords = MAX_WORDS }: PruneHistoryParams) => {
-    let wordsCount = 0;
-    let outputMessages = [messages[0]];
-
+export const pruneHistory = ({ messages, maxCharCount = MAX_CHARS }: PruneHistoryParams) => {
+    let charCount = 0;
+    let outputMessages = messages
+    
     for (let i = messages.length - 1; i >= 0; i--) {
         const message = JSON.stringify(messages[i]);
-        wordsCount += message.length;
-
-        if (wordsCount > maxWords) {
-            outputMessages = messages.slice(i + 1);
+        charCount += message.length;
+        if (charCount > maxCharCount) {
+            outputMessages = outputMessages.slice(i);
             break;
         }
     }

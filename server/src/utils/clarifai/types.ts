@@ -25,6 +25,6 @@ export type GeneratePromptParams = z.infer<typeof generatePromptParamsSchema>
 
 export const pruneHistoryParamsSchema = z.object({
     messages: messagesSchema,
-    maxWords: z.number().optional()
+    maxCharCount: z.number().optional()
 })
 export type PruneHistoryParams = z.infer<typeof pruneHistoryParamsSchema>
