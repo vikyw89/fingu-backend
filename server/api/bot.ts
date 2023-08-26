@@ -1,4 +1,4 @@
-// import "dotenv/config";
+import "dotenv/config";
 // import { telegramBot } from "./utils/telegram";
 // import { initRoutes } from "./routes";
 // import { webhookCallback } from "grammy";

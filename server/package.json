@@ -9,7 +9,7 @@
     "build": "tsc && prisma generate",
     "predev": "npm run build:watch &",
     "dev": "nodemon ./build/index.js",
-    "start": "node build/index.js"
+    "start": "node build/bot.js"
   },
   "author": "",
   "license": "UNLICENSED",
