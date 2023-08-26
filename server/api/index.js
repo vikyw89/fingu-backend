@@ -1,4 +1,3 @@
-require('dotenv').config()
-const app = require('../src/index')
+const app = require('../dist/index')
 
 module.exports = app

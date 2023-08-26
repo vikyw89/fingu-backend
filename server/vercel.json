@@ -10,5 +10,11 @@
         "source": "/src(.*)",
         "destination": "/public/401.html"
       }
-    ]
+    ],
+    "functions": {
+        "api/index.js": {
+        "memory": 1024,
+        "maxDuration": 10
+        }
+    }
   }
