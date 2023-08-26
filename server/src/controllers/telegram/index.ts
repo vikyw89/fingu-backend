@@ -11,6 +11,7 @@ export const telegramMessageHandler = async (ctx: any, next:any) => {
         const telegramId = ctx.message.from.id.toString()
 
         const newText = ctx.message.text as string
+        console.log("🚀 ~ file: index.ts:14 ~ telegramMessageHandler ~ newText:", newText)
 
         const newMessage = {
             isUser: true,
@@ -103,7 +104,7 @@ export const telegramMessageHandler = async (ctx: any, next:any) => {
         })
 
     } catch (err) {
-        next(err)
+        console.log("🚀 ~ file: index.ts:107 ~ telegramMessageHandler ~ err:", err)
     }
 
 }
