@@ -1,22 +1,22 @@
-// import "dotenv/config";
-// import { initRoutes } from "./routes";
-// import { webhookCallback } from "grammy";
-// import { telegramBot } from "./utils/telegram";
+import "dotenv/config";
+import { telegramBot } from "./utils/telegram";
+import { initRoutes } from "./routes";
+import { webhookCallback } from "grammy";
 
-// initRoutes()
+initRoutes()
 
-// console.log('server started')
-// // telegramBot.start()
-// export default webhookCallback(telegramBot,"http")
+console.log('server started')
 
-
+export default webhookCallback(telegramBot,"http")
 
 
-import { Bot, webhookCallback } from "grammy";
 
-const token = process.env.BOT_TOKEN;
-if (!token) throw new Error("BOT_TOKEN is unset");
 
-const bot = new Bot(token);
+// import { Bot, webhookCallback } from "grammy";
 
-export default webhookCallback(bot, "http");
+// const token = process.env.BOT_TOKEN;
+// if (!token) throw new Error("BOT_TOKEN is unset");
+
+// const bot = new Bot(token);
+
+// export default webhookCallback(bot, "http");
