@@ -1,15 +1,16 @@
 import { message } from "telegraf/filters";
 import { telegramMessageHandler } from "../../controllers/telegram";
 import { telegramBot } from "../../utils/telegram";
+import { DOMAIN } from "../../utils/telegram/config";
 
 
 telegramBot.on(message('text'), telegramMessageHandler)
 
 telegramBot.launch({
     webhook: {
-        domain: 'https://myaddress.com',
+        domain: DOMAIN,
         port: 3000,
-        
+
     }
 })
 

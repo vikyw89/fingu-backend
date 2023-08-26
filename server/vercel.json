@@ -1,11 +1,14 @@
 {
-    "version": 2,
-    "public": true,
     "rewrites": [
       {
-        "source": "/(.*)",
-        "destination": "api/index.js"
+        "source": "/api/(.*)",
+        "destination": "/api"
       }
     ],
-    "redirects": [{ "source": "/", "destination": "/api", "permanent": false }]
+    "redirects": [
+      {
+        "source": "/src(.*)",
+        "destination": "/public/401.html"
+      }
+    ]
   }
