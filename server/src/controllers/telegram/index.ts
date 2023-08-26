@@ -1,5 +1,5 @@
 import { askClarify, generatePrompt, pruneHistory } from "../../utils/clarifai";
-import { GeneratePromptParams, Messages, messageSchema, messagesSchema } from "../../utils/clarifai/types";
+import {  messageSchema, messagesSchema } from "../../utils/clarifai/types";
 import { prisma } from "../../utils/prisma";
 
 export const telegramMessageHandler = async (ctx: any, next:any) => {
@@ -11,6 +11,7 @@ export const telegramMessageHandler = async (ctx: any, next:any) => {
         const telegramId = ctx.message.from.id.toString()
 
         const newText = ctx.message.text as string
+        
         const newMessage = {
             isUser: true,
             text: newText
@@ -74,6 +75,7 @@ export const telegramMessageHandler = async (ctx: any, next:any) => {
         
 
         const response = await askClarify({ name: name, messages: newPrompt })
+        console.log("🚀 ~ file: index.ts:78 ~ telegramMessageHandler ~ response:", response)
         const responseData = response.outputs[0].data.text.raw
         // send data to user
         await ctx.reply(responseData)

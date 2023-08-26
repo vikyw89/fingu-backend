@@ -1,4 +1,5 @@
-import { Telegraf } from 'telegraf';
 import { TELEGRAM_BOT_TOKEN } from "./config"
+import { Bot } from 'grammy';
 
-export const telegramBot = new Telegraf(TELEGRAM_BOT_TOKEN);
+
+export const telegramBot = new Bot(TELEGRAM_BOT_TOKEN)
