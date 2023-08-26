@@ -8,8 +8,13 @@ telegramBot.on(message('text'), telegramMessageHandler)
 
 telegramBot.use(logger)
 
-
-telegramBot.launch();
+telegramBot.launch({
+    webhook: {
+      domain: 'https://myaddress.com',
+      port: 4000
+    }
+  })
+// telegramBot.launch();
 
 // Enable graceful stop
 process.once('SIGINT', () => telegramBot.stop('SIGINT'));
