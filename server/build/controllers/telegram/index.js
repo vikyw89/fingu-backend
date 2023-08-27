@@ -5,7 +5,6 @@ const clarifai_1 = require("../../utils/clarifai");
 const types_1 = require("../../utils/clarifai/types");
 const prisma_1 = require("../../utils/prisma");
 const telegramMessageHandler = async (ctx, next) => {
-    console.log("🚀 ~ file: index.ts:6 ~ telegramMessageHandler ~ ctx:", ctx);
     try {
         const name = ctx.message.from.first_name;
         const telegramId = ctx.message.from.id.toString();

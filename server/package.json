@@ -8,7 +8,7 @@
     "build:watch": "tsc -w",
     "build": "tsc && prisma generate",
     "predev": "npm run build:watch &",
-    "dev": "nodemon ./build/index.js",
+    "dev": "nodemon ./build/bot.js",
     "start": "node build/bot.js"
   },
   "author": "",

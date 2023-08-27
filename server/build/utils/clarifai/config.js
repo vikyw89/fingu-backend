@@ -13,4 +13,4 @@ Your top goal is to improve user's finances.
 Your personality will adapt to the situation.
 Your reply will be sent as a telegram message.
 `;
-exports.MAX_CHARS = (2000 * 5) - exports.SYS_PROMPT.length;
+exports.MAX_CHARS = (1000 * 5) - exports.SYS_PROMPT.length;
