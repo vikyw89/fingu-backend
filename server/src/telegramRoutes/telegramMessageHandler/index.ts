@@ -32,7 +32,7 @@ export const telegramMessageHandler = async (ctx: any, next:any) => {
             },
             select: {
                 chatHistory: {
-                    take: 10,
+                    take: 100,
                     orderBy: {
                         createdAt: 'desc',
                     },
@@ -76,7 +76,9 @@ export const telegramMessageHandler = async (ctx: any, next:any) => {
         }
         
         console.time('ask Clarify')
+
         const response = await askClarify({ name: name, messages: newPrompt })
+
         console.timeEnd('ask Clarify')
         const responseData = response.outputs[0].data.text.raw ?? "..."
         // send data to user
