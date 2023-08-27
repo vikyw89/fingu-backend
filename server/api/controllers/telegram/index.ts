@@ -9,7 +9,8 @@ export const telegramMessageHandler = async (ctx: any, next:any) => {
 
         const telegramId = ctx.message.from.id.toString()
 
-        const newText = ctx.message.text as string
+        const newText = JSON.stringify(ctx.message.text) as string
+        console.log("🚀 ~ file: index.ts:13 ~ telegramMessageHandler ~ newText:", newText)
         
         const newMessage = {
             isUser: true,
@@ -29,7 +30,7 @@ export const telegramMessageHandler = async (ctx: any, next:any) => {
             },
             select: {
                 chatHistory: {
-                    take: 100,
+                    take: 50,
                     orderBy: {
                         createdAt: 'desc',
                     },
