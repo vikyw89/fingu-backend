@@ -5,6 +5,7 @@ const clarifai_1 = require("../../utils/clarifai");
 const types_1 = require("../../utils/clarifai/types");
 const prisma_1 = require("../../utils/prisma");
 const telegramMessageHandler = async (ctx, next) => {
+    console.log("🚀 ~ file: index.ts:6 ~ telegramMessageHandler ~ ctx:", ctx);
     try {
         const name = ctx.message.from.first_name;
         const telegramId = ctx.message.from.id.toString();
@@ -58,7 +59,6 @@ const telegramMessageHandler = async (ctx, next) => {
             newPrompt = (0, clarifai_1.generatePrompt)({ messages: messageHistory });
         }
         const response = await (0, clarifai_1.askClarify)({ name: name, messages: newPrompt });
-        console.log("🚀 ~ file: index.ts:78 ~ telegramMessageHandler ~ response:", response);
         const responseData = response.outputs[0].data.text.raw;
         // send data to user
         await ctx.reply(responseData);

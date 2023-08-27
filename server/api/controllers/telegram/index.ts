@@ -3,7 +3,6 @@ import {  messageSchema, messagesSchema } from "../../utils/clarifai/types";
 import { prisma } from "../../utils/prisma";
 
 export const telegramMessageHandler = async (ctx: any, next:any) => {
-
     try {
 
         const name = ctx.message.from.first_name
@@ -75,7 +74,6 @@ export const telegramMessageHandler = async (ctx: any, next:any) => {
         
 
         const response = await askClarify({ name: name, messages: newPrompt })
-        console.log("🚀 ~ file: index.ts:78 ~ telegramMessageHandler ~ response:", response)
         const responseData = response.outputs[0].data.text.raw
         // send data to user
         await ctx.reply(responseData)
