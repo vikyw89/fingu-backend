@@ -3,6 +3,7 @@ import {  messageSchema, messagesSchema } from "../../utils/clarifai/types";
 import { prisma } from "../../utils/prisma";
 
 export const telegramMessageHandler = async (ctx: any, next:any) => {
+    console.time('telegramMessageHandler');
     try {
 
         const name = ctx.message.from.first_name
@@ -24,13 +25,14 @@ export const telegramMessageHandler = async (ctx: any, next:any) => {
         // get message history
         // if none, create the user
 
+        console.time('find history')
         const res = await prisma.user.findFirst({
             where: {
                 telegramId: telegramId
             },
             select: {
                 chatHistory: {
-                    take: 50,
+                    take: 10,
                     orderBy: {
                         createdAt: 'desc',
                     },
@@ -41,7 +43,7 @@ export const telegramMessageHandler = async (ctx: any, next:any) => {
                 id: true
             }
         })
-
+        console.timeEnd('find history')
         if (!res) {
 
             const res = await prisma.user.create({
@@ -73,18 +75,19 @@ export const telegramMessageHandler = async (ctx: any, next:any) => {
             newPrompt = generatePrompt({ messages: messageHistory })
         }
         
-
+        console.time('ask Clarify')
         const response = await askClarify({ name: name, messages: newPrompt })
-        const responseData = response.outputs[0].data.text.raw
+        console.timeEnd('ask Clarify')
+        const responseData = response.outputs[0].data.text.raw ?? "..."
         // send data to user
-        await ctx.reply(responseData)
+        ctx.reply(responseData)
 
         // await ctx.telegram.sendMessage(ctx.message.chat.id, responseData);
         const newResponse = {
             text: responseData,
             isUser: false
         }
-
+        console.time('store history')
         // store new response into db
         await prisma.chat.createMany({
             data: [
@@ -98,7 +101,8 @@ export const telegramMessageHandler = async (ctx: any, next:any) => {
                 }
             ]
         })
-
+        console.timeEnd('store history')
+        console.timeEnd('telegramMessageHandler');
     } catch (err) {
         console.log(err)
     }

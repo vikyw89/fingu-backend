@@ -46,11 +46,9 @@ RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y openssl && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
-# RUN npm install pm2 -g
 # Copy built application
 COPY --from=build /app /app
 
 # Start the server by default, this can be overwritten at runtime
 EXPOSE 3000
-CMD [ "node", "./dist/index.js" ]
-# CMD ["pm2-runtime", "./dist/index.js"]
+CMD [ "npm", "run", "start" ]
