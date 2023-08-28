@@ -6,7 +6,7 @@ import { prisma } from "../../utils/prisma";
 export const telegramMessageHandler = async (ctx: Context, next:NextFunction) => {
     console.time('telegramMessageHandler');
     try {
-
+        if (!ctx.message) return
         const name = ctx.message.from.first_name
 
         const telegramId = ctx.message.from.id.toString()
