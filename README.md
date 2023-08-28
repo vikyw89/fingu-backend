@@ -3,9 +3,9 @@
 to change ai default sys, go to 
 
 ```
-cd server/src/utils/clarify/config
+cd server/src/utils/clarify/
 
-<!-- change  SYS_PROMPT-->
+<!-- change SYS_PROMPT inside config.ts file-->
 ```
 
 # to launch
