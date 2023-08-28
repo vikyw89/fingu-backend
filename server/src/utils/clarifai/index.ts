@@ -10,12 +10,11 @@ import { AskClarifyParams, GeneratePromptParams, PruneHistoryParams } from "./ty
  *   - sysPrompt: (optional) the system prompt.
  */
 export const askClarify = async ({ messages, name, sysPrompt = SYS_PROMPT }: AskClarifyParams) => {
-
-    const endInput = `<s>
-<<SYS>>
-${sysPrompt}
-You are chatting with ${name}.
-<</SYS>> ${messages}`
+// put system prompt outside of inst so it doesn't get censsored
+    const endInput = `<s><<SYS>>
+My name is ${name}. ${sysPrompt}
+<</SYS>>
+${messages}`
 
     const raw = JSON.stringify({
         user_app_id: {

@@ -1,8 +1,9 @@
+import { Context, NextFunction } from "grammy";
 import { askClarify, generatePrompt, pruneHistory } from "../../utils/clarifai";
 import {  messageSchema, messagesSchema } from "../../utils/clarifai/types";
 import { prisma } from "../../utils/prisma";
 
-export const telegramMessageHandler = async (ctx: any, next:any) => {
+export const telegramMessageHandler = async (ctx: Context, next:NextFunction) => {
     console.time('telegramMessageHandler');
     try {
 
