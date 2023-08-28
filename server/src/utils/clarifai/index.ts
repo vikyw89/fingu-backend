@@ -11,10 +11,10 @@ import { AskClarifyParams, GeneratePromptParams, PruneHistoryParams } from "./ty
  */
 export const askClarify = async ({ messages, name, sysPrompt = SYS_PROMPT }: AskClarifyParams) => {
 
-    const endInput = `<s>[INST] <<SYS>>
-You are chatting with ${name}.
+    const endInput = `<s> <<SYS>>
 ${sysPrompt}
-<</SYS>> [/INST] ${messages}`
+You are chatting with ${name}.
+<</SYS>> ${messages}`
 
     const raw = JSON.stringify({
         user_app_id: {
@@ -61,7 +61,7 @@ ${sysPrompt}
 export const generatePrompt = ({ messages }: GeneratePromptParams) => {
     return messages
         .map((v) =>
-            v.isUser ? `[INST] ${v.text} [/INST]` : `${v.text}`
+            v.isUser ? `<s> [INST] ${v.text} [/INST]` : `${v.text} </s>`
         )
         .join(" ");
 };
