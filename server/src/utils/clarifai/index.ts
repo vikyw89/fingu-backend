@@ -64,7 +64,7 @@ export const generatePrompt = ({ messages }: GeneratePromptParams) => {
         .map((v) =>
             v.isUser ? `[INST] ${v.text} [/INST]` : `${v.text}`
         )
-        .join("\n");
+        .join(" ");
 };
 
 /**
