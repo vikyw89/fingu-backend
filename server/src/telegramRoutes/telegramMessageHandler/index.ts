@@ -2,31 +2,30 @@ import { Context, NextFunction } from "grammy";
 import { askClarify, generatePrompt, pruneHistory } from "../../utils/clarifai";
 import { messageSchema, messagesSchema } from "../../utils/clarifai/types";
 import { prisma } from "../../utils/prisma";
+import { chatSplitter } from "../../utils/chatSplitter";
 
 export const telegramMessageHandler = async (ctx: Context, next: NextFunction) => {
     console.time('telegramMessageHandler');
+    if (!ctx.message) return
+
     try {
-        if (!ctx.message) return
         const name = ctx.message.from.first_name
 
         const telegramId = ctx.message.from.id.toString()
 
-        const newText = JSON.stringify(ctx.message.text) as string
-        console.log("🚀 ~ file: index.ts:13 ~ telegramMessageHandler ~ newText:", newText)
+        const newText = ctx.message.text
 
         const newMessage = {
             isUser: true,
-            text: newText
+            text: newText ?? "..."
         }
 
         let messageHistory = [newMessage]
 
         let userId = ""
 
-        // get message history
-        // if none, create the user
-
         console.time('find history')
+
         const res = await prisma.user.findFirst({
             where: {
                 telegramId: telegramId
@@ -44,7 +43,9 @@ export const telegramMessageHandler = async (ctx: Context, next: NextFunction) =
                 id: true
             }
         })
+
         console.timeEnd('find history')
+
         if (!res) {
 
             const res = await prisma.user.create({
@@ -81,16 +82,29 @@ export const telegramMessageHandler = async (ctx: Context, next: NextFunction) =
         const response = await askClarify({ name: name, messages: newPrompt })
 
         console.timeEnd('ask Clarify')
-        const responseData = response?.outputs?.[0]?.data?.text?.raw ?? "..."
-        // send data to user
-        ctx.reply(responseData, { parse_mode: 'MarkdownV2', reply_to_message_id: ctx.message.message_id })
 
-        // await ctx.telegram.sendMessage(ctx.message.chat.id, responseData);
+        const responseData = response?.outputs?.[0]?.data?.text?.raw ?? "..."
+
+        const responseArr = chatSplitter(responseData)
+
+        let delay = Math.random()*10000
+        let index = 0
+
+        while (index < responseArr.length) {
+            const message = responseArr[index]
+            ctx.reply(message, { parse_mode: 'Markdown' })
+            ctx.api.sendChatAction(ctx.message.chat.id, "typing")
+            index++
+            await new Promise(r => setTimeout(r, delay))
+        }
+
         const newResponse = {
             text: responseData,
             isUser: false
         }
+
         console.time('store history')
+
         // store new response into db
         await prisma.chat.createMany({
             data: [
@@ -104,10 +118,15 @@ export const telegramMessageHandler = async (ctx: Context, next: NextFunction) =
                 }
             ]
         })
+
         console.timeEnd('store history')
+
         console.timeEnd('telegramMessageHandler');
+
     } catch (err) {
+
         console.log(err)
+
     }
 
 }
