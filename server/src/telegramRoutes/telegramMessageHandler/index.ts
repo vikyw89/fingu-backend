@@ -1,9 +1,9 @@
 import { Context, NextFunction } from "grammy";
 import { askClarify, generatePrompt, pruneHistory } from "../../utils/clarifai";
-import {  messageSchema, messagesSchema } from "../../utils/clarifai/types";
+import { messageSchema, messagesSchema } from "../../utils/clarifai/types";
 import { prisma } from "../../utils/prisma";
 
-export const telegramMessageHandler = async (ctx: Context, next:NextFunction) => {
+export const telegramMessageHandler = async (ctx: Context, next: NextFunction) => {
     console.time('telegramMessageHandler');
     try {
         if (!ctx.message) return
@@ -13,7 +13,7 @@ export const telegramMessageHandler = async (ctx: Context, next:NextFunction) =>
 
         const newText = JSON.stringify(ctx.message.text) as string
         console.log("🚀 ~ file: index.ts:13 ~ telegramMessageHandler ~ newText:", newText)
-        
+
         const newMessage = {
             isUser: true,
             text: newText
@@ -66,24 +66,24 @@ export const telegramMessageHandler = async (ctx: Context, next:NextFunction) =>
                     messageHistory.unshift(message.data)
                 }
             }
-            
-            messageHistory = pruneHistory({messages: messageHistory})
+
+            messageHistory = pruneHistory({ messages: messageHistory })
         }
-        
+
         let newPrompt = ""
-        
+
         if (messagesSchema.safeParse(messageHistory).success) {
             newPrompt = generatePrompt({ messages: messageHistory })
         }
-        
+
         console.time('ask Clarify')
 
         const response = await askClarify({ name: name, messages: newPrompt })
 
         console.timeEnd('ask Clarify')
-        const responseData = response.outputs[0].data.text.raw ?? "..."
+        const responseData = response?.outputs?.[0]?.data?.text?.raw ?? "..."
         // send data to user
-        ctx.reply(responseData)
+        ctx.reply(responseData, { parse_mode: 'MarkdownV2', reply_to_message_id: ctx.message.message_id })
 
         // await ctx.telegram.sendMessage(ctx.message.chat.id, responseData);
         const newResponse = {
