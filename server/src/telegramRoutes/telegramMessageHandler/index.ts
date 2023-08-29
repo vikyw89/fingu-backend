@@ -71,6 +71,13 @@ export const telegramMessageHandler = async (ctx: Context, next: NextFunction) =
             messageHistory = pruneHistory({ messages: messageHistory })
         }
 
+        prisma.chat.create({
+            data: {
+                userId: userId,
+                content: newMessage
+            }
+        })
+
         let newPrompt = ""
 
         if (messagesSchema.safeParse(messageHistory).success) {
@@ -85,9 +92,22 @@ export const telegramMessageHandler = async (ctx: Context, next: NextFunction) =
 
         const responseData = response?.outputs?.[0]?.data?.text?.raw ?? "..."
 
+        const newResponse = {
+            text: responseData,
+            isUser: false
+        }
+
+        // store new response into db
+        prisma.chat.create({
+            data: {
+                userId: userId,
+                content: newResponse
+            }
+        })
+
         const responseArr = chatSplitter(responseData)
 
-        let delay = Math.random()*10000
+        let delay = Math.random() * 10000
         let index = 0
 
         while (index < responseArr.length) {
@@ -97,29 +117,6 @@ export const telegramMessageHandler = async (ctx: Context, next: NextFunction) =
             index++
             await new Promise(r => setTimeout(r, delay))
         }
-
-        const newResponse = {
-            text: responseData,
-            isUser: false
-        }
-
-        console.time('store history')
-
-        // store new response into db
-        await prisma.chat.createMany({
-            data: [
-                {
-                    userId: userId,
-                    content: newMessage
-                },
-                {
-                    userId: userId,
-                    content: newResponse
-                }
-            ]
-        })
-
-        console.timeEnd('store history')
 
         console.timeEnd('telegramMessageHandler');
 
