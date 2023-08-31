@@ -15,11 +15,12 @@ telegramBot.use(limit({
     }
 }))
 
-telegramBot.use(telegramQueueStartHandler)
 
 telegramBot.use(logger)
 
 telegramBot.on("msg::bot_command", telegramCommandHandler)
+
+telegramBot.use(telegramQueueStartHandler)
 
 telegramBot.on("message:file", telegramFileHandler)
 

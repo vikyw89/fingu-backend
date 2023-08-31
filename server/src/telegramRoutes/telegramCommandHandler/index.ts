@@ -19,6 +19,15 @@ export const telegramCommandHandler = async (ctx: Context, next: NextFunction) =
 
                 chatCount = deletedChat.count
 
+                const resetWaiting = await prisma.telegram.update({
+                    where: {
+                        id: userTelegramId
+                    },
+                    data: {
+                        isWaiting: false
+                    }
+                })
+
                 ctx.reply(`Fingu had amnesia and forgotten ${chatCount} chats !`, { reply_to_message_id: ctx.message.message_id })
                 break
             }
@@ -29,10 +38,4 @@ export const telegramCommandHandler = async (ctx: Context, next: NextFunction) =
         console.log(err)
 
     }
-    finally {
-
-        next()
-
-    }
-
 }
