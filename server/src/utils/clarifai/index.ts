@@ -9,7 +9,7 @@ import { AskClarifyParams, GeneratePromptParams, PruneHistoryParams } from "./ty
  *   - name: the name of the user.
  *   - sysPrompt: (optional) the system prompt.
  */
-export const askClarify = async ({ messages, name, sysPrompt = SYS_PROMPT }: AskClarifyParams) => {
+export const askClarifai = async ({ messages, name, sysPrompt = SYS_PROMPT }: AskClarifyParams) => {
 // put system prompt outside of inst so it doesn't get censsored
     const endInput = `<s><<SYS>>
 My name is ${name}. ${sysPrompt}

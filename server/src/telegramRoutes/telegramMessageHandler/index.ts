@@ -1,38 +1,50 @@
 import { Context, NextFunction } from "grammy";
-import { askClarify, generatePrompt, pruneHistory } from "../../utils/clarifai";
+import { askClarifai, generatePrompt, pruneHistory } from "../../utils/clarifai";
 import { Message, messageSchema, messagesSchema } from "../../utils/clarifai/types";
 import { prisma } from "../../utils/prisma";
 import { chatSplitter } from "../../utils/chatSplitter";
 
 export const telegramMessageHandler = async (ctx: Context, next: NextFunction) => {
     console.time('telegramMessageHandler');
-
-    if (!ctx?.message) return
-
-    const replyToMessage = ctx.message.reply_to_message?.text
-
-    const newText = ctx.message.text
     
+    if (!ctx?.message) return
+    ctx.replyWithChatAction('typing')
+
+    const fromTelegramId = ctx.message.from.id.toString()
+
+    const message = ctx.message.text ?? "..."
+    
+    const fromName = ctx.message.from.first_name ?? "anonymous"
+
+    // block new message
+    const setIsWaiting = await prisma.telegram.upsert({
+        where: {
+            id: fromTelegramId,
+        },
+        update: {
+            id: fromTelegramId,
+            isWaiting: true
+        },
+        create: {
+            id: fromTelegramId,
+            isWaiting: true
+        }
+    })
+
     const newMessage = {
         isUser: true,
-        text: newText ?? "..."
+        text: ctx.message.text ?? "..."
     }
 
-    const name = ctx.message.from.first_name
-
-    const telegramId = ctx.message.from.id.toString()
-
     try {
-        
-        let messageHistory = [newMessage]
 
-        let userId = ""
+        let messageHistory = [newMessage]
 
         console.time('find history')
 
-        const res = await prisma.user.findFirst({
+        const res = await prisma.telegram.findFirst({
             where: {
-                telegramId: telegramId
+                id: fromTelegramId
             },
             select: {
                 chatHistory: {
@@ -44,56 +56,23 @@ export const telegramMessageHandler = async (ctx: Context, next: NextFunction) =
                         content: true
                     }
                 },
-                id: true
             }
         })
 
         console.timeEnd('find history')
 
-        if (!res) {
+        const chatHistory = res?.chatHistory ?? []
 
-            const res = await prisma.user.create({
-                data: {
-                    telegramId: telegramId
-                }
-            })
-
-            userId = res.id
-
-        } else {
-
-            userId = res.id
-            
-            for (let i = 0; i < res.chatHistory.length; i++) {
-                const content = res.chatHistory[i].content
-                const message = messageSchema.safeParse(content)
-                if (message.success) {
-                    messageHistory.unshift(message.data)
-                }
+        for (let i = 0; i < chatHistory.length; i++) {
+            const content = chatHistory[i].content
+            const parsedContent = messageSchema.safeParse(content)
+            if (parsedContent.success) {
+                messageHistory.unshift(parsedContent.data)
             }
-            
-            messageHistory = pruneHistory({ messages: messageHistory })
         }
-        
-        if (replyToMessage) {
-            await prisma.chat.create({
-                data: {
-                    userId:userId,
-                    content: {
-                        text: replyToMessage,
-                        isUser: false
-                    }
-                }
-            })
-        }
-        
-        const savedNewMessage = await prisma.chat.create({
-            data:{
-                userId: userId,
-                content: newMessage
-            }
-        })
-        
+
+        messageHistory = pruneHistory({ messages: messageHistory })
+
         let newPrompt = ""
 
         if (messagesSchema.safeParse(messageHistory).success) {
@@ -102,7 +81,7 @@ export const telegramMessageHandler = async (ctx: Context, next: NextFunction) =
 
         console.time('ask Clarify')
 
-        const response = await askClarify({ name: name, messages: newPrompt })
+        const response = await askClarifai({ name: fromName, messages: newPrompt })
 
         console.timeEnd('ask Clarify')
 
@@ -113,25 +92,45 @@ export const telegramMessageHandler = async (ctx: Context, next: NextFunction) =
             isUser: false
         }
 
-        // store new response into db
-        const savedNewResponse = await prisma.chat.create({
-            data: {
-                userId: userId,
-                content: newResponse
-            }
-        })
-
         const responseArr = chatSplitter(responseData)
 
         let index = 0
 
         while (index < responseArr.length) {
             const message = responseArr[index]
-            ctx.reply(message, { parse_mode: 'Markdown' })
-            ctx.api.sendChatAction(ctx.message.chat.id, "typing")
+            if (index === 0) {
+                ctx.reply(message, { parse_mode: 'Markdown',reply_to_message_id: ctx.message.message_id })
+            } else {
+                ctx.reply(message, { parse_mode: 'Markdown' })
+            }
+            ctx.replyWithChatAction('typing')
             index++
-            await new Promise(r => setTimeout(r, (responseArr[index+1] ?? []).length * 10))
+            await new Promise(r => setTimeout(r, (responseArr[index + 1] ?? []).length * 10))
         }
+
+        // store chatRound into DB
+        const storedChat = await prisma.telegramChat.createMany({
+            data:[
+                {
+                    telegramId: fromTelegramId,
+                    content: newMessage,
+                },
+                {
+                    telegramId:fromTelegramId,
+                    content:newResponse
+                }
+            ]
+        })
+
+        // update isWaiting
+        const setIsWaiting = await prisma.telegram.update({
+            where: {
+                id: fromTelegramId
+            },
+            data: {
+                isWaiting: false
+            }
+        })
 
         console.timeEnd('telegramMessageHandler');
 

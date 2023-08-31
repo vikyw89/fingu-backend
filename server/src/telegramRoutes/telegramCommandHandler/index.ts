@@ -3,36 +3,30 @@ import { prisma } from "../../utils/prisma";
 
 export const telegramCommandHandler = async (ctx: Context, next: NextFunction) => {
     if (!ctx.message) return
-    const userTelegramId = ctx.message.from.id
-    const command = ctx.message.text
+    const userTelegramId = ctx.message.from.id.toString()
+    const command = ctx.message.text ?? "..."
 
     try {
         switch (command) {
             case '/reset': {
-                const userId = await prisma.user.findFirst({
+                let chatCount = 0
+
+                const deletedChat = await prisma.telegramChat.deleteMany({
                     where: {
-                        telegramId: userTelegramId.toString()
-                    },
-                    select: {
-                        id: true
+                        telegramId: userTelegramId
                     }
                 })
-                let chatCount = 0
-                if (userId) {
-                    const deletedChat = await prisma.chat.deleteMany({
-                        where:{
-                            userId:userId?.id
-                        }
-                    })
-                    chatCount = deletedChat.count
-                } 
-                ctx.reply(`Deleted ${chatCount} chats !`, { reply_to_message_id: ctx.message.message_id })
+
+                chatCount = deletedChat.count
+
+                ctx.reply(`Fingu had amnesia and forgotten ${chatCount} chats !`, { reply_to_message_id: ctx.message.message_id })
                 break
             }
         }
     }
     catch (err) {
 
+        console.log(err)
 
     }
 
