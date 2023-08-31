@@ -14,6 +14,7 @@
   "author": "",
   "license": "UNLICENSED",
   "dependencies": {
+    "@grammyjs/conversations": "^1.1.2",
     "@grammyjs/ratelimiter": "^1.2.0",
     "@prisma/client": "^5.2.0",
     "clarifai-nodejs-grpc": "^9.7.0",

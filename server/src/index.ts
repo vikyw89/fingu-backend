@@ -13,8 +13,8 @@ const app = express();
 app.use(express.json());
 
 initRoutes()
-telegramBot.start()
-// app.use(`/api/bot/${TELEGRAM_BOT_TOKEN}`, webhookCallback(telegramBot, "express"));
+// telegramBot.start()
+app.use(`/api/bot/${TELEGRAM_BOT_TOKEN}`, webhookCallback(telegramBot, "express"));
 app.use("/api", (req:Request, res:Response) => {
     res.json('Welcome to Fingu!')
 });
