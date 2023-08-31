@@ -1,39 +1,89 @@
 import { Context, NextFunction } from "grammy";
 import { prisma } from "../../utils/prisma";
 
-export const telegramQueueHandler = async (ctx:Context,next:NextFunction) => {
+export const telegramQueueStartHandler = async (ctx: Context, next: NextFunction) => {
+    if (!ctx.message) return
+
+    const fromTelegramId = ctx.message?.from.id.toString()
+    ctx.replyWithChatAction('typing')
+    // check for isWaiting
+    try {
+        let checkIsWaiting = await prisma.telegram.findFirst({
+            where: {
+                id: fromTelegramId
+            },
+            select: {
+                isWaiting: true,
+            }
+        })
+
+        // if it's first time user, id would be false
+        if (!checkIsWaiting) {
+            next()
+        }
+
+        // short polling the db
+        // inneficient, will be updated to long polling or pubsub when scaling is needed
+        while (checkIsWaiting?.isWaiting) {
+            console.log("🚀 ~ file: index.ts:28 ~ telegramQueueHandler ~ checkIsWaiting:", checkIsWaiting)
+            await new Promise(r => setTimeout(r, 10000))
+            checkIsWaiting = await prisma.telegram.findFirst({
+                where: {
+                    id: fromTelegramId
+                },
+                select: {
+                    isWaiting: true,
+                }
+            })
+        }
+
+        await prisma.telegram.upsert({
+            where: {
+                id: fromTelegramId
+            },
+            update: {
+                isWaiting: true
+            },
+            create: {
+                isWaiting: true,
+                id: fromTelegramId
+            }
+        })
+
+
+    }
+    catch (err) {
+
+        console.log(err)
+
+    }
+    finally{
+
+        next()
+
+    }
+}
+
+
+export const telegramQueueEndHandler = async (ctx: Context, next: NextFunction) => {
     if (!ctx.message) return
 
     const fromTelegramId = ctx.message?.from.id.toString()
 
-    // check for isWaiting
-    let checkIsWaiting = await prisma.telegram.findFirst({
-        where:{
-            id:fromTelegramId
-        },
-        select:{
-            isWaiting:true,
-        }
-    })
+    try {
 
-    // if it's first time user, id would be false
-    if (!checkIsWaiting) {
-        next()
-    }
-
-    // short polling the db
-    // inneficient, will be updated to long polling or pubsub when scaling is needed
-    while (checkIsWaiting?.isWaiting) {
-        await new Promise(r => setTimeout(r, 10000))
-        checkIsWaiting = await prisma.telegram.findFirst({
-            where:{
-                id:fromTelegramId
+        await prisma.telegram.update({
+            where: {
+                id: fromTelegramId
             },
-            select:{
-                isWaiting:true,
+            data: {
+                isWaiting: false
             }
         })
-    }
 
-    next()
+    }
+    catch (err) {
+
+        console.log(err)
+    }
 }

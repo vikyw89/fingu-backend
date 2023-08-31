@@ -4,8 +4,8 @@ import { telegramBot } from "../utils/telegram"
 import { telegramFileHandler } from "./telegramFileHandler"
 import { telegramMessageHandler } from "./telegramMessageHandler"
 import { telegramCommandHandler } from "./telegramCommandHandler"
-import { chatAction } from "../telegramMiddlewares/chatAction"
 import { limit } from "@grammyjs/ratelimiter"
+import { telegramQueueEndHandler, telegramQueueStartHandler } from "./telegramQueueHandler"
 
 telegramBot.use(limit({
     limit: 100,
@@ -15,13 +15,17 @@ telegramBot.use(limit({
     }
 }))
 
+telegramBot.use(telegramQueueStartHandler)
+
 telegramBot.use(logger)
 
 telegramBot.on("msg::bot_command", telegramCommandHandler)
 
 telegramBot.on("message:file", telegramFileHandler)
 
-telegramBot.on("message", telegramMessageHandler)
+telegramBot.on("message:text", telegramMessageHandler)
+
+telegramBot.use(telegramQueueEndHandler)
 
 telegramBot.use((ctx: Context, next: NextFunction) => {
 

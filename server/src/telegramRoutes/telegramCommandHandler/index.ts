@@ -29,5 +29,10 @@ export const telegramCommandHandler = async (ctx: Context, next: NextFunction) =
         console.log(err)
 
     }
+    finally {
+
+        next()
+
+    }
 
 }
