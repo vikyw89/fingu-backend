@@ -1,9 +1,15 @@
 import { Context, NextFunction } from "grammy";
 import { askClarifai, generatePrompt, pruneHistory } from "../../utils/clarifai";
-import { Message, messageSchema, messagesSchema } from "../../utils/clarifai/types";
+import { messageSchema, messagesSchema } from "../../utils/clarifai/types";
 import { prisma } from "../../utils/prisma";
 import { chatSplitter } from "../../utils/chatSplitter";
 
+/**
+ * Handles incoming Telegram messages.
+ *
+ * @param {Context} ctx - The context object containing the Telegram message.
+ * @param {NextFunction} next - The next function to be called in the middleware chain.
+ */
 export const telegramMessageHandler = async (ctx: Context, next: NextFunction) => {
     console.time('telegramMessageHandler');
     

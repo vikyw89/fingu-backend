@@ -1,6 +1,13 @@
 import { Context, NextFunction } from "grammy";
 import { prisma } from "../../utils/prisma";
 
+/**
+ * Handles Telegram commands.
+ *
+ * @param {Context} ctx - The context object.
+ * @param {NextFunction} next - The next function.
+ * @return {Promise<void>} Returns a promise that resolves to void.
+ */
 export const telegramCommandHandler = async (ctx: Context, next: NextFunction) => {
     if (!ctx.message) return
     const userTelegramId = ctx.message.from.id.toString()
@@ -38,4 +45,5 @@ export const telegramCommandHandler = async (ctx: Context, next: NextFunction) =
         console.log(err)
 
     }
+
 }

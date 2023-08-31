@@ -5,6 +5,13 @@ import { Context, NextFunction } from "grammy";
  *
  * @param {Context} ctx - the context object representing the Telegram request
  * @param {NextFunction} next - the function to call the next middleware
+ * @return {Promise<void>} - a promise that resolves when the function completes
+ */
+/**
+ * Handles the Telegram file request by replying with a message and calling the next middleware.
+ *
+ * @param {Context} ctx - the context object representing the Telegram request
+ * @param {NextFunction} next - the function to call the next middleware
  */
 export const telegramFileHandler = async (ctx: Context, next: NextFunction) => {
 

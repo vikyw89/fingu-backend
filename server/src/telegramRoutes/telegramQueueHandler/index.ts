@@ -1,6 +1,13 @@
 import { Context, NextFunction } from "grammy";
 import { prisma } from "../../utils/prisma";
 
+/**
+ * Handles the start of the Telegram queue.
+ *
+ * @param {Context} ctx - The context object.
+ * @param {NextFunction} next - The next function to call.
+ * @return {Promise<void>} This function does not return anything.
+ */
 export const telegramQueueStartHandler = async (ctx: Context, next: NextFunction) => {
     if (!ctx.message) return
 
