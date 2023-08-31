@@ -1,25 +1,24 @@
 console.time('express')
 import "dotenv/config";
-import { telegramBot } from "./utils/telegram";
 import { initRoutes } from "./telegramRoutes";
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import express from "express";
-import { webhookCallback } from "grammy";
-import { TELEGRAM_BOT_TOKEN } from "./utils/telegram/config";
+import { router } from "./expressRoutes";
 
 const port = process.env.PORT ?? 3000;
 const app = express();
 
 app.use(express.json());
 
-initRoutes()
-// telegramBot.start()
-app.use(`/api/bot/${TELEGRAM_BOT_TOKEN}`, webhookCallback(telegramBot, "express"));
-app.use("/api", (req:Request, res:Response) => {
-    res.json('Welcome to Fingu!')
-});
+app.use('/api',router)
 
 app.use((req:Request, res:Response) => res.status(200).send());
+
+app.use((err:Error, req:Request, res:Response, next:NextFunction) => {
+    console.error(err.stack)
+    res.status(500).json('Something broke!')
+  })
+  
 app.listen(port, () => console.log(`listening on port ${port}`));
 
 console.timeEnd('express')

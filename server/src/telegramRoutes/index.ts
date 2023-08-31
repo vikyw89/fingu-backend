@@ -10,7 +10,7 @@ import { telegramQueueEndHandler, telegramQueueStartHandler } from "./telegramQu
 telegramBot.use(limit({
     limit: 100,
     timeFrame: 1000 * 60 * 60 * 24,
-    onLimitExceeded: async(ctx: Context, next: NextFunction) => {
+    onLimitExceeded: async (ctx: Context, next: NextFunction) => {
         ctx.reply("Fingu gotta go, see you tomorrow !")
     }
 }))
@@ -35,4 +35,4 @@ telegramBot.use((ctx: Context, next: NextFunction) => {
     ctx.reply("What's that ?", { reply_to_message_id: ctx.message.message_id })
 })
 
-export const initRoutes = () => { }
+export { telegramBot }
