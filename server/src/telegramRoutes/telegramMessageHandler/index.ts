@@ -16,21 +16,6 @@ export const telegramMessageHandler = async (ctx: Context, next: NextFunction) =
     
     const fromName = ctx.message.from.first_name ?? "anonymous"
 
-    // block new message
-    const setIsWaiting = await prisma.telegram.upsert({
-        where: {
-            id: fromTelegramId,
-        },
-        update: {
-            id: fromTelegramId,
-            isWaiting: true
-        },
-        create: {
-            id: fromTelegramId,
-            isWaiting: true
-        }
-    })
-
     const newMessage = {
         isUser: true,
         text: ctx.message.text ?? "..."
@@ -122,21 +107,16 @@ export const telegramMessageHandler = async (ctx: Context, next: NextFunction) =
             ]
         })
 
-        // update isWaiting
-        const setIsWaiting = await prisma.telegram.update({
-            where: {
-                id: fromTelegramId
-            },
-            data: {
-                isWaiting: false
-            }
-        })
-
         console.timeEnd('telegramMessageHandler');
 
     } catch (err) {
 
         console.log(err)
+
+    }
+    finally{
+
+        next()
 
     }
 
